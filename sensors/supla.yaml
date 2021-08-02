@@ -1,0 +1,271 @@
+# Licznik energii elektrycznej MEW-01
+- platform: rest
+  name: Licznik MEW
+  resource: https://svr34.supla.org/direct/295/N6LRv57hG9aK/read # tu wklejamy bezpośredni
+  value_template: "{{ value_json.totalCost }}"
+  json_attributes:
+    - phases
+    - connected
+    - currency
+    - pricePerUnit
+    - support
+  unit_of_measurement: "PLN"
+
+  # sensory wewnętrzne w HA z aktualnymi parametrami MEW-01
+# pobierane zuzycie chwilowe, zuzycie calkowite, natezenie, napiecie i czestotliwosc.
+# Mocy biernej i pozornej oraz katow nie zbieram ale mozna je dopisac
+# sensory sa na kazda faze oddzielnie (*faza1*, *faza2*, faza3*) i dodatkowo zbiorczy (*faza123*)
+# zeby pokazac sumy mocy czynnej i zuzytej energii
+
+# Moc czynna pobrana
+- platform: template
+  sensors:
+    licznik_faza1_totalforwardactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].totalForwardActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza2_totalforwardactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].totalForwardActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza3_totalforwardactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].totalForwardActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza123_totalforwardactiveenergy:
+      value_template: >-
+        {{ ((states.sensor.licznik_faza1_totalforwardactiveenergy.state | float)
+        + (states.sensor.licznik_faza2_totalforwardactiveenergy.state | float) 
+        + (states.sensor.licznik_faza3_totalforwardactiveenergy.state | float)) | round(2)}}
+      unit_of_measurement: "kWh"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Moc czynna oddana
+    licznik_faza1_totalreverseactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].totalReverseActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza2_totalreverseactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].totalReverseActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza3_totalreverseactiveenergy:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].totalReverseActiveEnergy }}"
+      device_class: power
+      unit_of_measurement: "kWh"
+    licznik_faza123_totalreverseactiveenergy:
+      value_template: >-
+        {{ ((states.sensor.licznik_faza1_totalreverseactiveenergy.state | float)
+        + (states.sensor.licznik_faza2_totalreverseactiveenergy.state | float) 
+        + (states.sensor.licznik_faza3_totalreverseactiveenergy.state | float)) | round(2)}}
+      unit_of_measurement: "kWh"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Moc czynna chwilowa
+    licznik_faza1_poweractive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].powerActive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza2_poweractive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].powerActive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza3_poweractive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].powerActive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza123_poweractive:
+      value_template: >-
+        {{ (((states.sensor.licznik_faza1_poweractive.state | float)
+        + (states.sensor.licznik_faza2_poweractive.state | float) 
+        + (states.sensor.licznik_faza3_poweractive.state | float) )) | round(2)}}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Pomiar na liczniku MEW zawsze pozytywny
+    licznik_faza123_poweractive_positive:
+      value_template: >-
+        {% if states('sensor.licznik_faza123_poweractive')|float < 0 %}
+          {{ ((states.sensor.licznik_faza123_poweractive.state | float) 
+          * (-1)) }}
+        {% else %}
+          {{ states('sensor.licznik_faza123_poweractive') }}
+        {% endif %}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+    licznik_faza123_poweractive_kw:
+      value_template: >-
+        {{ (((states.sensor.licznik_faza1_poweractive.state | float)
+        + (states.sensor.licznik_faza2_poweractive.state | float) 
+        + (states.sensor.licznik_faza3_poweractive.state | float) )/1000 ) | round(2)}}
+      unit_of_measurement: "kW"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Produkcja PV przeliczona w kW
+    solar_active_power_kw:
+      value_template: >-
+        {{ ((states.sensor.solar_active_power.state | float) /1000 ) | round(2)}}
+      unit_of_measurement: "kW"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Zuzycie chwilowe dom
+    licznik_house_poweractive:
+      value_template: >-
+        {{ (((states.sensor.solar_active_power.state | float)
+        + (states.sensor.licznik_faza123_poweractive.state | float))) | round (2)}}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # PV generation to house entity
+    licznik_generation_to_house_poweractive:
+      value_template: >-
+        {{ (((states.sensor.solar_active_power.state | float)
+        - (states.sensor.licznik_faza123_poweractive_reverse.state | float))) | round (2)}}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+    # Energia pobrana z sieci zawodowej (bez oddanej)
+    licznik_faza123_poweractive_forward:
+      value_template: >-
+        {% if states('sensor.licznik_faza123_poweractive')|float < 0 %}
+          0
+        {% else %}
+          {{ states('sensor.licznik_faza123_poweractive') }}
+        {% endif %}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+      # Energia oddana do sieci zawodowej
+    licznik_faza123_poweractive_reverse:
+      value_template: >-
+        {% if states('sensor.licznik_faza123_poweractive')|float > 0 %}
+          0
+        {% else %}
+          {{ ((states.sensor.licznik_faza123_poweractive.state | float) 
+          * (-1)) }}
+        {% endif %}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+
+    # Moc bierna
+    licznik_faza1_powerreactive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].powerReactive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza2_powerreactive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].powerReactive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza3_powerreactive:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].powerReactive }}"
+      device_class: power
+      unit_of_measurement: "W"
+    licznik_faza123_powerreactive:
+      value_template: >-
+        {{ (states.sensor.licznik_faza1_powerreactive.state | float)
+        + (states.sensor.licznik_faza2_powerreactive.state | float) 
+        + (states.sensor.licznik_faza3_powerreactive.state | float) | round(2)}}
+      unit_of_measurement: "W"
+      device_class: power
+      icon_template: mdi:gauge
+    licznik_faza123_powerreactive_kw:
+      value_template: >-
+        {{ (((states.sensor.licznik_faza1_powerreactive.state | float)
+        + (states.sensor.licznik_faza2_powerreactive.state | float) 
+        + (states.sensor.licznik_faza3_powerreactive.state | float) )/1000 ) | round(2)}}
+      unit_of_measurement: "kW"
+      device_class: power
+      icon_template: mdi:gauge
+
+    licznik_faza1_frequency:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].frequency | round(0)}}"
+      device_class: power
+      unit_of_measurement: "Hz"
+    licznik_faza2_frequency:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].frequency | round(0)}}"
+      device_class: power
+      unit_of_measurement: "Hz"
+    licznik_faza3_frequency:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].frequency | round(0)}}"
+      device_class: power
+      unit_of_measurement: "Hz"
+
+    licznik_faza1_current:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].current | round(2)}}"
+      device_class: power
+      unit_of_measurement: "A"
+    licznik_faza2_current:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].current | round(2)}}"
+      device_class: power
+      unit_of_measurement: "A"
+    licznik_faza3_current:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].current | round(2)}}"
+      device_class: power
+      unit_of_measurement: "A"
+
+    licznik_faza1_voltage:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].voltage | round(0)}}"
+      device_class: power
+      unit_of_measurement: "V"
+    licznik_faza2_voltage:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].voltage | round(0)}}"
+      device_class: power
+      unit_of_measurement: "V"
+    licznik_faza3_voltage:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].voltage | round(0)}}"
+      device_class: power
+      unit_of_measurement: "V"
+
+    # Kat fazowy
+    licznik_faza1_phaseangle:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].phaseAngle }}"
+      device_class: power
+      unit_of_measurement: "°"
+      icon_template: mdi:gauge
+    licznik_faza2_phaseangle:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].phaseAngle }}"
+      device_class: power
+      unit_of_measurement: "°"
+      icon_template: mdi:gauge
+    licznik_faza3_phaseangle:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].phaseAngle }}"
+      device_class: power
+      unit_of_measurement: "°"
+      icon_template: mdi:gauge
+
+    # Wspolczynnik mocy
+    licznik_faza1_powerfactor:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[0].powerFactor }}"
+      device_class: power
+      unit_of_measurement: " "
+      icon_template: mdi:gauge
+    licznik_faza2_powerfactor:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[1].powerFactor }}"
+      device_class: power
+      unit_of_measurement: " "
+      icon_template: mdi:gauge
+    licznik_faza3_powerfactor:
+      value_template: "{{ states.sensor.licznik_mew.attributes.phases[2].powerFactor }}"
+      device_class: power
+      unit_of_measurement: " "
+      icon_template: mdi:gauge
+
+# HA binary sensor - sluzy do pokazywania aktualnego stanu łacznosci licznika.
+
+#binary_sensor:
+- platform: template
+  sensors:
+    licznik_status:
+      friendly_name: "Licznik status"
+      value_template: "{{ states.sensor.licznik_mew.attributes.connected }}"
