@@ -1,0 +1,399 @@
+#licznik1
+- id: Broadcast Licznik licznik1 stan na koniec dnia MQTT
+  alias: Broadcast Licznik licznik1 stan na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:59:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalforwardactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik1/dzien/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik1/dzien/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik1 zuzycie na koniec dnia MQTT
+  alias: Broadcast Licznik licznik1 zuzycie na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:58:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik1_licznik_mqtt_zuzycie_dzis.state
+          | round(2) | float }}"
+        topic: energia/licznik1/dzien/wczoraj/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik1/dzien/wczoraj/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik1 stan na koniec mca MQTT
+  alias: Broadcast Licznik licznik1 stan na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalforwardactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik1/mc/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik1/mc/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik1 zuzycie na koniec mca MQTT
+  alias: Broadcast Licznik licznik1 zuzycie na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:00:09
+  condition:
+    - condition: template
+      value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ sensor.licznik1_licznik_zuzycie_poprzedni_miesiac_mqtt.state
+          | round(2) | float }}"
+        topic: energia/licznik1/mc/poprzedni/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik1/mc/poprzedni/timestamp_raportu
+        retain: true
+  mode: single
+- id: Broadcast Licznik licznik1 stan na koniec roku MQTT
+  alias: Broadcast Licznik licznik1 stan na koniec roku MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().timetuple().tm_yday == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalforwardactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik1/rok/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik1/rok/timestamp_raportu
+        retain: true
+# licznik 2
+- id: Broadcast Licznik licznik2 stan na koniec dnia MQTT
+  alias: Broadcast Licznik licznik2 stan na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:59:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalreverseactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik2/dzien/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik2/dzien/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik2 zuzycie na koniec dnia MQTT
+  alias: Broadcast Licznik licznik2 zuzycie na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:58:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik2_licznik_mqtt_zuzycie_dzis.state
+          | round(2) | float }}"
+        topic: energia/licznik2/dzien/wczoraj/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik2/dzien/wczoraj/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik2 stan na koniec mca MQTT
+  alias: Broadcast Licznik licznik2 stan na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    - condition: template
+      value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalreverseactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik2/mc/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik2/mc/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik2 zuzycie na koniec mca MQTT
+  alias: Broadcast Licznik licznik2 zuzycie na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:00:09
+  condition:
+    - condition: template
+      value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ sensor.licznik2_licznik_zuzycie_poprzedni_miesiac_mqtt.state
+          | round(2) | float }}"
+        topic: energia/licznik2/mc/poprzedni/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik2/mc/poprzedni/timestamp_raportu
+        retain: true
+  mode: single
+- id: Broadcast Licznik licznik2 stan na koniec roku MQTT
+  alias: Broadcast Licznik licznik2 stan na koniec roku MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    - condition: template
+      value_template: "{{ now().timetuple().tm_yday == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik_faza123_totalreverseactiveenergy.state
+          | round(2) | float }}"
+        topic: energia/licznik2/rok/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik2/rok/timestamp_raportu
+        retain: true
+  mode: single
+#licznik 3
+- id: Broadcast Licznik licznik3 stan na koniec dnia MQTT
+  alias: Broadcast Licznik licznik3 stan na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:59:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik3/dzien/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik3/dzien/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik3 zuzycie na koniec dnia MQTT
+  alias: Broadcast Licznik licznik3 zuzycie na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:58:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik3_licznik_mqtt_zuzycie_dzis.state
+          | round(2) | float }}"
+        topic: energia/licznik3/dzien/wczoraj/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik3/dzien/wczoraj/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik3 stan na koniec mca MQTT
+  alias: Broadcast Licznik licznik3 stan na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik3/mc/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik3/mc/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik3 zuzycie na koniec mca MQTT
+  alias: Broadcast Licznik licznik3 zuzycie na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:00:09
+  condition:
+    - condition: template
+      value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ sensor.licznik3_licznik_zuzycie_poprzedni_miesiac_mqtt.state
+          | round(2) | float }}"
+        topic: energia/licznik3/mc/poprzedni/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik3/mc/poprzedni/timestamp_raportu
+        retain: true
+  mode: single
+- id: Broadcast Licznik licznik3 stan na koniec roku MQTT
+  alias: Broadcast Licznik licznik3 stan na koniec roku MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().timetuple().tm_yday == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik3/rok/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik3/rok/timestamp_raportu
+        retain: true
+#licznik 4
+- id: Broadcast Licznik licznik4 stan na koniec dnia MQTT
+  alias: Broadcast Licznik licznik4 stan na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:59:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik4/dzien/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik4/dzien/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik4 zuzycie na koniec dnia MQTT
+  alias: Broadcast Licznik licznik4 zuzycie na koniec dnia MQTT
+  trigger:
+    - platform: time
+      at: "23:58:00"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ states.sensor.licznik4_licznik_mqtt_zuzycie_dzis.state
+          | round(2) | float }}"
+        topic: energia/licznik4/dzien/wczoraj/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik4/dzien/wczoraj/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik4 stan na koniec mca MQTT
+  alias: Broadcast Licznik licznik4 stan na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik4/mc/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik4/mc/timestamp_raportu
+        retain: true
+- id: Broadcast Licznik licznik4 zuzycie na koniec mca MQTT
+  alias: Broadcast Licznik licznik4 zuzycie na koniec mca MQTT
+  trigger:
+    - platform: time
+      at: 00:00:09
+  condition:
+    - condition: template
+      value_template: "{{ now().day == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template:
+          "{{ sensor.licznik4_licznik_zuzycie_poprzedni_miesiac_mqtt.state
+          | round(2) | float }}"
+        topic: energia/licznik4/mc/poprzedni/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik4/mc/poprzedni/timestamp_raportu
+        retain: true
+  mode: single
+- id: Broadcast Licznik licznik4 stan na koniec roku MQTT
+  alias: Broadcast Licznik licznik4 stan na koniec roku MQTT
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition:
+    condition: template
+    value_template: "{{ now().timetuple().tm_yday == 1 }}"
+  action:
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ states.sensor.solar_total_production.state
+          | round(2) | float }}"
+        topic: energia/licznik4/rok/stan
+        retain: true
+    - service: mqtt.publish
+      data_template:
+        payload_template: "{{ now() }}"
+        topic: energia/licznik4/rok/timestamp_raportu
+        retain: true
