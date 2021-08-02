@@ -1,0 +1,100 @@
+- name: solar
+  type: tcp
+  host: 192.168.200.1
+  port: 502
+  sensors:
+    - name: Solar Model name
+      scan_interval: 14400 # 4 uur
+      address: 30000
+      count: 15
+      data_type: string
+    - name: Solar Installed optimizers
+      scan_interval: 14400 # 4 uur
+      address: 37200
+      data_type: uint
+    - name: Solar Max active power
+      scan_interval: 14400 # 4 uur
+      unit_of_measurement: W
+      count: 2
+      address: 30075
+      data_type: uint
+    - name: Solar total production
+      scan_interval: 14400 # 4 uur
+      unit_of_measurement: kWh
+      count: 2
+      address: 32106
+      data_type: uint
+      scale: 0.01
+      precision: 2
+    # Medium refresh solar registries
+    - name: Solar phase A Voltage
+      scan_interval: 300 # 5 minuten
+      unit_of_measurement: V
+      address: 32069
+      data_type: uint
+      scale: 0.1
+      precision: 1
+    - name: Solar Internal temperature
+      scan_interval: 300 # 5 minuten
+      unit_of_measurement: °C
+      address: 32087
+      scale: 0.1
+      precision: 1
+      data_type: int
+    - name: Solar Status Raw
+      scan_interval: 300 # 5 minuten
+      address: 32089
+      data_type: uint
+    - name: Solar Daily production
+      scan_interval: 300 # 5 minuten
+      unit_of_measurement: kWh
+      count: 2
+      address: 32114
+      data_type: uint
+      scale: 0.01
+      precision: 2
+    - name: Solar Optimizers online
+      scan_interval: 300 # 5 minuten
+      address: 37201
+      data_type: uint
+    - name: Solar Input power
+      scan_interval: 300 # 5 minuten
+      unit_of_measurement: W
+      count: 2
+      address: 32064
+      data_type: int
+    # Fast refresh solar registries
+    - name: Solar PV1 voltage
+      scan_interval: 5
+      unit_of_measurement: V
+      address: 32016
+      data_type: int
+      scale: 0.1
+      precision: 1
+    - name: Solar PV1 current
+      scan_interval: 5
+      unit_of_measurement: A
+      address: 32017
+      data_type: int
+      scale: 0.01
+      precision: 2
+    - name: Solar PV2 voltage
+      scan_interval: 5
+      unit_of_measurement: V
+      address: 32018
+      data_type: int
+      scale: 0.1
+      precision: 1
+    - name: Solar PV2 current
+      scan_interval: 5
+      unit_of_measurement: A
+      address: 32019
+      data_type: int
+      scale: 0.01
+      precision: 2
+    - name: Solar Active Power
+      scan_interval: 5
+      unit_of_measurement: W
+      count: 2
+      address: 32080
+      data_type: int
