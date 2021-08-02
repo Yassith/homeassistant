@@ -53,7 +53,7 @@ media_player:
   - platform: webostv
     host: 10.10.0.4
     name: lg-tv
-    mac: "7c:1c:4e:93:fc:b5"
+    mac: "xx:xx:xx:xx:xx:xx"
     broadcast_address: 10.10.0.255
     filename: webostv.conf
     timeout: 5
@@ -78,18 +78,18 @@ binary_sensor:
     scan_interval: 30
 
 influxdb:
-  host: a0d7b954-influxdb
+  host: xxxxxxxxxxxxxxxx
   port: 8086
   database: homeassistant
-  username: yassith
-  password: M12poka;)
+  username: xxxxxxxxxxxx
+  password: xxxxxxxxxxxx
   max_retries: 3
   default_measurement: state
 
 remote:
   - platform: broadlink
     host: 10.10.0.30
-    mac: A0:43:B0:12:3D:E5
+    mac: xx:xx:xx:xx:xx:xx
     name: "RM4 Mini"
 
 mqtt:
