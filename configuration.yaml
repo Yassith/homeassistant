@@ -1,0 +1,111 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+    language: "pl"
+
+homeassistant:
+  customize: !include customize.yaml
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include_dir_merge_named scripts/
+scene: !include scenes.yaml
+switch: !include switches/switch.yaml
+camera: !include camera.yaml
+modbus: !include_dir_merge_list modbus/
+sensor: !include_dir_merge_list sensors/
+frontend:
+  themes: !include_dir_merge_named themes/
+wake_on_lan:
+
+#push notifications
+
+logger:
+  default: info
+  logs:
+    pydeconz: debug
+    homeassistant.components.deconz: debug
+    homeassistant.components.mqtt: info
+    homeassistant.components.shell_command: debug
+    homeassistant.components.google_assistant: debug
+
+#notify:
+#  - platform: html5
+#    name: J23-HASS
+#    gcm_api_key: YOUR_API_KEY
+#    gcm_sender_id: YOUR_SENDER_ID
+
+# LG TV
+webostv:
+  host: 10.10.0.4
+  name: lg_tv
+  #other settings
+  customize:
+    sources:
+      - Dekoder
+      - YouTube
+      - Netflix
+
+media_player:
+  #LG TV
+  - platform: webostv
+    host: 10.10.0.4
+    name: lg-tv
+    mac: "7c:1c:4e:93:fc:b5"
+    broadcast_address: 10.10.0.255
+    filename: webostv.conf
+    timeout: 5
+    turn_on_action:
+      service: switch.turn_on
+      entity: switch.lg
+  #    name: YAS-306
+  - platform: yamaha_musiccast
+    host: 10.10.0.7
+    port: 5006
+  #    name: RX-1080
+  - platform: yamaha_musiccast
+    host: 10.10.0.3
+    port: 5005
+
+# PING
+binary_sensor:
+  - platform: ping
+    host: 192.168.200.1
+    name: "SUN-2000-ping"
+    count: 2
+    scan_interval: 30
+
+influxdb:
+  host: a0d7b954-influxdb
+  port: 8086
+  database: homeassistant
+  username: yassith
+  password: M12poka;)
+  max_retries: 3
+  default_measurement: state
+
+remote:
+  - platform: broadlink
+    host: 10.10.0.30
+    mac: A0:43:B0:12:3D:E5
+    name: "RM4 Mini"
+
+mqtt:
+  broker: core-mosquitto
+  port: 1883
+  #  certificate: auto
+  username: mqtt_user
+  password: !secret mqtt
+  discovery: true
+
+stream:
+  notify:
+
+lovelace:
+  resources:
+    - url: /local/power-wheel-card.js?v=1
+      type: module
+
+daikin_residential:
